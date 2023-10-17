@@ -1,33 +1,26 @@
 import os
 import requests
-import psycopg2
 from datetime import datetime
-from flask import Flask, redirect, render_template, url_for
+from flask import Flask, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_restful import Resource, Api
 from dotenv import load_dotenv
 import sqlalchemy
 load_dotenv()
 
 
 app = Flask(__name__)
+api = Api(app)
 
 
 URLDB = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_DATABASE_URI'] = URLDB
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# connection = psycopg2.connect(URLDB)
-# if connection:
-#     print("========================================================================")
-#     print("connection sucessfully!!!")
-#     print("========================================================================")
-
-
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
+# create model
 class QuestionForDB(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_question = db.Column(db.Integer)
@@ -38,67 +31,102 @@ class QuestionForDB(db.Model):
     
     def __repr__(self):
         return '<QuestionForDB %r>' % self.text_question
+    
+    
+    
+    
+    
+class QuestionList(Resource):
+    def post(self):
+        data = request.get_json()
+        if 'questions_num' in data:
+            post_number = data['questions_num']
+            try:
+                response = requests.get(f"https://jservice.io/api/random?count={post_number}",
+                                        headers={"Content-Type": "application/json"})
+                res = response.json()
 
-@app.route("/api/posts/<int:post_number>", methods=['GET'])
+                for item in res:
+
+                    # type annotation
+                    idQuestion:      int = item["id"],
+                    textQuestion:    str = item["question"],
+                    textAnswer:      str = item["answer"],
+                    airdateQuestion: str = item["airdate"]
+
+                    # prepare data and insert to database
+                    ins = QuestionForDB(
+                        id_question = idQuestion,
+                        text_question = textQuestion,
+                        text_answer = textAnswer,
+                        airdate_question = airdateQuestion
+                    )
+                    db.session.add(ins)
+                    
+                db.session.commit()
+
+            # catching uniqueviolation error 
+            except sqlalchemy.exc.IntegrityError as err:
+                print("========================================================================================")
+                print("Caught UniqueViolation error || Обнаружена ошибка в Нарушении уникальности данных:")
+                print("========================================================================================")
+                print(err)
+                print("========================================================================================")
+                db.session.rollback()
+                redirectBeforeURL = url_for('postsItem', post_number=post_number)
+                
+                # if the question not unique then redirect to postItem url
+                return redirect(redirectBeforeURL)
+            
+            
+            
+            return {'questions_num': post_number}, 200
+        else:
+            return 'questions_num is required', 400
+
+api.add_resource(QuestionList, '/api/v1/questions/')
+
+
+
+
+# get questions via GET method
+@app.route("/api/v1/questions/<int:post_number>", methods=['GET'])
 def postsItem(post_number):
-    
-    try:
-        
-        response = requests.get(f"https://jservice.io/api/random?count={post_number}",
-                                headers={"Content-Type": "application/json"})
-        res = response.json()
-
-        for item in res:
-            # print("========================================================================")
-            # print(type(item))
-            # print(item["id"])
-            # print(item["question"])
-            # print(item["answer"])
-            # print(item["airdate"])
-            # print("========================================================================")
+    if request.method == 'GET':
+        try:
             
-            # idQuestion:      int = 146781
-            # textQuestion:    str = "Summer in this country lasts from December to February"
-            # textAnswer:      str = "Australia"
-            # airdateQuestion: str = "2012-07-03T19:00:00.000Z"
+            response = requests.get(f"https://jservice.io/api/random?count={post_number}",
+                                    headers={"Content-Type": "application/json"})
+            res = response.json()
 
-            idQuestion:      int = item["id"],
-            textQuestion:    str = item["question"],
-            textAnswer:      str = item["answer"],
-            airdateQuestion: str = item["airdate"]
-        
-            ins = QuestionForDB(
-                id_question = idQuestion,
-                text_question = textQuestion,
-                text_answer = textAnswer,
-                airdate_question = airdateQuestion
-            )
-            db.session.add(ins)
+            for item in res:
+
+                idQuestion:      int = item["id"],
+                textQuestion:    str = item["question"],
+                textAnswer:      str = item["answer"],
+                airdateQuestion: str = item["airdate"]
             
-        db.session.commit()
-        
-    # except psycopg2.errors.UniqueViolation as err:
-    except sqlalchemy.exc.IntegrityError as err:
-        print("========================================================================================")
-        print("Caught UniqueViolation error || Обнаружена ошибка в Нарушении уникальности данных:")
-        print("========================================================================================")
-        print(err)
-        print("========================================================================================")
-        db.session.rollback()
-        redirectBeforeURL = url_for('postsItem', post_number=post_number)
-        # print("редирекаемся на: ", queryURL)
-        return redirect(redirectBeforeURL)
-        
-        
-    
-    return res
+                ins = QuestionForDB(
+                    id_question = idQuestion,
+                    text_question = textQuestion,
+                    text_answer = textAnswer,
+                    airdate_question = airdateQuestion
+                )
+                db.session.add(ins)
+                
+            db.session.commit()
 
-@app.route("/")
-def index():
-    return render_template("index.html",
-                           title="Главная",
-                           data=QuestionForDB.query.all())
-
+        except sqlalchemy.exc.IntegrityError as err:
+            print("========================================================================================")
+            print("Caught UniqueViolation error || Обнаружена ошибка в Нарушении уникальности данных:")
+            print("========================================================================================")
+            print(err)
+            print("========================================================================================")
+            db.session.rollback()
+            redirectBeforeURL = url_for('postsItem', post_number=post_number)
+            # print("редирекаемся заново на: ", queryURL)
+            return redirect(redirectBeforeURL)
+        return res
 
 if __name__ == "__main__":
     app.run(debug=True)
