@@ -1,11 +1,12 @@
 import os
-import psycopg2
 import requests
+import psycopg2
 from datetime import datetime
-from flask import Flask, jsonify, render_template
+from flask import Flask, redirect, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dotenv import load_dotenv
+import sqlalchemy
 load_dotenv()
 
 
@@ -16,11 +17,11 @@ URLDB = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_DATABASE_URI'] = URLDB
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-connection = psycopg2.connect(URLDB)
-if connection:
-    print("========================================================================")
-    print("connection sucessfully!!!")
-    print("========================================================================")
+# connection = psycopg2.connect(URLDB)
+# if connection:
+#     print("========================================================================")
+#     print("connection sucessfully!!!")
+#     print("========================================================================")
 
 
 db = SQLAlchemy(app)
@@ -38,7 +39,7 @@ class QuestionForDB(db.Model):
     def __repr__(self):
         return '<QuestionForDB %r>' % self.text_question
 
-@app.route("/api/posts/<int:post_number>")
+@app.route("/api/posts/<int:post_number>", methods=['GET'])
 def postsItem(post_number):
     
     try:
@@ -55,12 +56,16 @@ def postsItem(post_number):
             # print(item["answer"])
             # print(item["airdate"])
             # print("========================================================================")
+            
+            # idQuestion:      int = 146781
+            # textQuestion:    str = "Summer in this country lasts from December to February"
+            # textAnswer:      str = "Australia"
+            # airdateQuestion: str = "2012-07-03T19:00:00.000Z"
 
-            idQuestion: int = item["id"],
-            textQuestion: str = item["question"],
-            textAnswer: str = item["answer"],
+            idQuestion:      int = item["id"],
+            textQuestion:    str = item["question"],
+            textAnswer:      str = item["answer"],
             airdateQuestion: str = item["airdate"]
-
         
             ins = QuestionForDB(
                 id_question = idQuestion,
@@ -71,8 +76,20 @@ def postsItem(post_number):
             db.session.add(ins)
             
         db.session.commit()
-    except ValueError:
-        print("Одинаковые данные !!!")
+        
+    # except psycopg2.errors.UniqueViolation as err:
+    except sqlalchemy.exc.IntegrityError as err:
+        print("========================================================================================")
+        print("Caught UniqueViolation error || Обнаружена ошибка в Нарушении уникальности данных:")
+        print("========================================================================================")
+        print(err)
+        print("========================================================================================")
+        db.session.rollback()
+        redirectBeforeURL = url_for('postsItem', post_number=post_number)
+        # print("редирекаемся на: ", queryURL)
+        return redirect(redirectBeforeURL)
+        
+        
     
     return res
 
@@ -107,3 +124,6 @@ if __name__ == "__main__":
 ### flask db init 
 ### flask db migrate
 ### flask db upgrade
+
+
+# https://stacktuts.com/how-to-catch-a-psycopg2-errors-uniqueviolation-error-in-a-python-flask-app
