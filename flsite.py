@@ -40,34 +40,39 @@ class QuestionForDB(db.Model):
 
 @app.route("/api/posts/<int:post_number>")
 def postsItem(post_number):
-    response = requests.get(f"https://jservice.io/api/random?count={post_number}",
-                            headers={"Content-Type": "application/json"})
-    res = response.json()
-
-    for item in res:
-        # print("========================================================================")
-        # print(type(item))
-        # print(item["id"])
-        # print(item["question"])
-        # print(item["answer"])
-        # print(item["airdate"])
-        # print("========================================================================")
-
-        idQuestion: int = item["id"],
-        textQuestion: str = item["question"],
-        textAnswer: str = item["answer"],
-        airdateQuestion: str = item["airdate"]
-
     
-        ins = QuestionForDB(
-            id_question = idQuestion,
-            text_question = textQuestion,
-            text_answer = textAnswer,
-            airdate_question = airdateQuestion
-        )
-        db.session.add(ins)
+    try:
         
-    db.session.commit()
+        response = requests.get(f"https://jservice.io/api/random?count={post_number}",
+                                headers={"Content-Type": "application/json"})
+        res = response.json()
+
+        for item in res:
+            # print("========================================================================")
+            # print(type(item))
+            # print(item["id"])
+            # print(item["question"])
+            # print(item["answer"])
+            # print(item["airdate"])
+            # print("========================================================================")
+
+            idQuestion: int = item["id"],
+            textQuestion: str = item["question"],
+            textAnswer: str = item["answer"],
+            airdateQuestion: str = item["airdate"]
+
+        
+            ins = QuestionForDB(
+                id_question = idQuestion,
+                text_question = textQuestion,
+                text_answer = textAnswer,
+                airdate_question = airdateQuestion
+            )
+            db.session.add(ins)
+            
+        db.session.commit()
+    except ValueError:
+        print("Одинаковые данные !!!")
     
     return res
 
