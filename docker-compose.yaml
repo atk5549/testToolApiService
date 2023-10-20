@@ -9,6 +9,10 @@ services:
     # задаем имя контейнера которое мы будем видеть в списке работающих контейнеров
     container_name: my_docker_postgres
 
+    
+
+
+
     # указываем параметры в случае сбоя сервиса, говорим контейнеру перезапускаться в случае отключения
     restart: unless-stopped
     # restart: always
@@ -23,8 +27,14 @@ services:
       POSTGRES_PASSWORD: 123123
       POSTGRES_USER: soaqa
       POSTGRES_DB: db01
-      # PGDATA: /home/mac/postgres/data
-      # POSTGRES_INITDB_ARGS: "-A md5"
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_ARGS: "-A md5"
+
+    # подключаю volume для postgresqlво избежании потери данных
+    # папка pg-data-backup должна лежать рядом с файлом
+    # docker-compose.yaml или относительно него
+    volumes:
+      - ./backupdb:/var/lib/postgresql/data
 
 
 # проверить работает ли docker командой service docker status

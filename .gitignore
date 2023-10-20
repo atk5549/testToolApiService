@@ -25,3 +25,9 @@ htmlcov/
 .coverage
 .coverage.*
 *,cover
+
+# postgresql backup
+backupdb/
+backupdb
+
+

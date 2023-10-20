@@ -13,10 +13,14 @@ load_dotenv()
 app = Flask(__name__)
 api = Api(app)
 
-
+# get environment variable
 URLDB = os.getenv("DATABASE_URL")
+
+# add const for working with database
 app.config['SQLALCHEMY_DATABASE_URI'] = URLDB
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -35,13 +39,14 @@ class QuestionForDB(db.Model):
     
     
     
-    
+# POST-endpoint for http://127.0.0.1:port/api/v1/questions/
 class QuestionList(Resource):
     def post(self):
         data = request.get_json()
         if 'questions_num' in data:
             post_number = data['questions_num']
             try:
+                # get data for questions on public API-service https://jservice.io/api/random?count=anyinteger
                 response = requests.get(f"https://jservice.io/api/random?count={post_number}",
                                         headers={"Content-Type": "application/json"})
                 res = response.json()
