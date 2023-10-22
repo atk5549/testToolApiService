@@ -39,7 +39,7 @@ class QuestionForDB(db.Model):
     
     
     
-# POST-endpoint for http://127.0.0.1:port/api/v1/questions/
+# questions via POST method (http://127.0.0.1:port/api/v1/questions/)
 class QuestionList(Resource):
     def post(self):
         data = request.get_json()
@@ -97,44 +97,44 @@ api.add_resource(QuestionList, '/api/v1/questions/')
 
 
 
-# get questions via GET method
-@app.route("/api/v1/questions/<int:post_number>", methods=['GET'])
-def postsItem(post_number):
-    if request.method == 'GET':
-        try:
+# # get questions via GET method
+# @app.route("/api/v1/questions/<int:post_number>", methods=['GET'])
+# def postsItem(post_number):
+#     if request.method == 'GET':
+#         try:
             
-            response = requests.get(f"https://jservice.io/api/random?count={post_number}",
-                                    headers={"Content-Type": "application/json"})
-            res = response.json()
+#             response = requests.get(f"https://jservice.io/api/random?count={post_number}",
+#                                     headers={"Content-Type": "application/json"})
+#             res = response.json()
 
-            for item in res:
+#             for item in res:
 
-                idQuestion:      int = item["id"],
-                textQuestion:    str = item["question"],
-                textAnswer:      str = item["answer"],
-                airdateQuestion: str = item["airdate"]
+#                 idQuestion:      int = item["id"],
+#                 textQuestion:    str = item["question"],
+#                 textAnswer:      str = item["answer"],
+#                 airdateQuestion: str = item["airdate"]
             
-                ins = QuestionForDB(
-                    id_question = idQuestion,
-                    text_question = textQuestion,
-                    text_answer = textAnswer,
-                    airdate_question = airdateQuestion
-                )
-                db.session.add(ins)
+#                 ins = QuestionForDB(
+#                     id_question = idQuestion,
+#                     text_question = textQuestion,
+#                     text_answer = textAnswer,
+#                     airdate_question = airdateQuestion
+#                 )
+#                 db.session.add(ins)
                 
-            db.session.commit()
+#             db.session.commit()
 
-        except sqlalchemy.exc.IntegrityError as err:
-            print("========================================================================================")
-            print("Caught UniqueViolation error || Обнаружена ошибка в Нарушении уникальности данных:")
-            print("========================================================================================")
-            print(err)
-            print("========================================================================================")
-            db.session.rollback()
-            redirectBeforeURL = url_for('postsItem', post_number=post_number)
-            # print("редирекаемся заново на: ", queryURL)
-            return redirect(redirectBeforeURL)
-        return res
+#         except sqlalchemy.exc.IntegrityError as err:
+#             print("========================================================================================")
+#             print("Caught UniqueViolation error || Обнаружена ошибка в Нарушении уникальности данных:")
+#             print("========================================================================================")
+#             print(err)
+#             print("========================================================================================")
+#             db.session.rollback()
+#             redirectBeforeURL = url_for('postsItem', post_number=post_number)
+#             # print("редирекаемся заново на: ", queryURL)
+#             return redirect(redirectBeforeURL)
+#         return res
 
 if __name__ == "__main__":
     app.run(debug=True)

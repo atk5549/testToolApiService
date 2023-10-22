@@ -26,8 +26,4 @@ htmlcov/
 .coverage.*
 *,cover
 
-# postgresql backup
-backupdb/
-backupdb
-
 
