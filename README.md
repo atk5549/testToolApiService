@@ -113,11 +113,6 @@ DATABASE_URL=postgresql://soaqa:123123@localhost:54321/db01
 *Теперь построим и запустим контейнер c базой данных PostgreSQL с помощью **docker-compose***
 - Находясь в корневой папке проекта, следующую команду в терминале: `docker-compose -f docker-compose.yaml up --build`
 
-## Доступ к PostgreSQL: 
-- `localhost:54321` или `127.0.0.1:54321`
-- **Username:** soaqa 
-- **Password:** 123123
-
 # Миграция созданной Модели во Flask в PostgreSQL
 
 *При успешно установленных зависимостях,*
