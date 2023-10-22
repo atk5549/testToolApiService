@@ -100,9 +100,9 @@ zipp==3.17.0
 - В корне проекта создайте файл ".env" и запишите туда следующие переменные окружения
   
 ```
-FLASK_APP:  flsite
-FLASK_ENV: development
-DATABASE_URL: postgresql://soaqa:123123@localhost:54321/db01
+FLASK_APP=flsite
+FLASK_ENV=development
+DATABASE_URL=postgresql://soaqa:123123@localhost:54321/db01
 ```
  
 - В корне проекта, если отсутствует то создайте папку с названием **"backupdb"** для сохранения данных из СУБД (PostgreSQL) в случае падения контейнера
