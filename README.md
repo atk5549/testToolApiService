@@ -98,6 +98,13 @@ zipp==3.17.0
 - Склонируйте следующий репозиторий: https://github.com/atk5549/testToolApiService.git
 - Перейдите в папку с проектом:  `cd testToolApiService`
 - В корне проекта создайте файл ".env" и запишите туда переменные окружения (см. выше)
+  
+```
+FLASK_APP:  flsite
+FLASK_ENV: development
+DATABASE_URL: postgresql://soaqa:123123@localhost:54321/db01
+```
+ 
 - В корне проекта, если отсутствует то создайте папку с названием **"backupdb"** для сохранения данных из СУБД (PostgreSQL) в случае падения контейнера
 - Создайте виртуальное окружение с помощью команды в терминале: `python3 -m venv venv`
 - Активируйте виртуальное окружение c помощью команды в терминале: `source venv/bin/activate`
