@@ -136,6 +136,25 @@ DATABASE_URL=postgresql://soaqa:123123@localhost:54321/db01
 
 - `python3 flsite.py`
 
+*После успешного запуска проекта, отправте POST запрос,*
+*рекомендую для теста использовать программу Postman,*
+*скачать последнюю версию можно по этой ссылке https://dl.pstmn.io/download/latest/*
+
+для запроса необходимо использовать следующие настройки:
+
+=== Headers ===
+key: "Content-Type"
+value: "applicatoion/json"
+___
+=== Body (raw) ===
+```
+{
+  "questions_num": 1
+}
+```
+___
+
+
 
 
 
