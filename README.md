@@ -142,13 +142,12 @@ DATABASE_URL=postgresql://soaqa:123123@localhost:54321/db01
 
 для запроса необходимо использовать следующие настройки:
 
-=== Headers ===
+>> Headers
 ```
-key: "Content-Type"
-value: "applicatoion/json"
+key: "Content-Type" | value: "applicatoion/json"
 ```
 ___
-=== Body (raw) ===
+>> Body (raw)
 ```
 {
   "questions_num": 1
