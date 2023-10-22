@@ -149,6 +149,8 @@ ___
 ```
 ___
 
+*Так же можно использовать утилиту **curl***
+`curl --header "Content-Type: application/json" --request POST --data '{"questions_num":1}' >> http://localhost:5000/api/v1/questions/`
 
 ## Доступ к контейнеру с PostgreSQL с использованием терминала:
 
