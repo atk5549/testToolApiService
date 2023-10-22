@@ -143,9 +143,9 @@ DATABASE_URL=postgresql://soaqa:123123@localhost:54321/db01
 для запроса необходимо использовать следующие настройки:
 
 - `API-ссылка`: `http://localhost:5000/api/v1/questions/`
-`Метод запроса`: `POST`
-`Заголовки (headers)`: `key: Content-Type | value: applicatoion/json`
-`Тело запроса (Body)`:
+- `Метод запроса`: `POST`
+- `Заголовки (headers)`: `key: Content-Type | value: applicatoion/json`
+- `Тело запроса (Body)`:
 ___
 ```
 {
